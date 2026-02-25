@@ -4,22 +4,22 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/app_config.dart';
 
-class ConfigProvider with ChangeNotifier {
+class ConfigProvider extends ChangeNotifier {
+  final SharedPreferences _prefs;
   AppConfig _config;
   static const String _configKey = 'app_config';
 
   AppConfig get config => _config;
 
-  ConfigProvider() : _config = AppConfig.defaultConfig() {
+  ConfigProvider(this._prefs) : _config = AppConfig.defaultConfig() {
     _loadConfig();
   }
 
   Future<void> _loadConfig() async {
-    final prefs = await SharedPreferences.getInstance();
-    final configString = prefs.getString(_configKey);
-    if (configString != null) {
+    final jsonString = _prefs.getString(_configKey);
+    if (jsonString != null) {
       try {
-        final jsonMap = json.decode(configString);
+        final Map<String, dynamic> jsonMap = json.decode(jsonString);
         _config = AppConfig.fromJson(jsonMap);
         notifyListeners();
       } catch (e) {
@@ -28,20 +28,22 @@ class ConfigProvider with ChangeNotifier {
     }
   }
 
-  Future<void> saveConfig({bool notify = true}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final configString = json.encode(_config.toJson());
-    await prefs.setString(_configKey, configString);
-    if (notify) notifyListeners();
+  Future<void> updateConfig(AppConfig newConfig) async {
+    _config = newConfig;
+    notifyListeners();
+    await _saveConfig();
   }
 
-  void updateConfig(AppConfig newConfig) {
-    _config = newConfig;
-    saveConfig();
+  Future<void> _saveConfig() async {
+    try {
+      final jsonString = json.encode(_config.toJson());
+      await _prefs.setString(_configKey, jsonString);
+    } catch (e) {
+      debugPrint('Error saving config: $e');
+    }
   }
 
   void resetConfig() {
-    _config = AppConfig.defaultConfig();
-    saveConfig();
+    updateConfig(AppConfig.defaultConfig());
   }
 }

@@ -7,12 +7,14 @@ class AppConfig {
   List<TierConfig> documentTiers;
   String photoModeName;
   List<PhotoSku> photoSkus;
+  String operatorName;
 
   AppConfig({
     this.documentModeName = 'A4文档打印',
     required this.documentTiers,
     this.photoModeName = '照片打印',
     required this.photoSkus,
+    this.operatorName = '嬴政',
   });
 
   factory AppConfig.defaultConfig() {
@@ -27,6 +29,7 @@ class AppConfig {
         PhotoSku(name: '6寸', price: 3.00),
         PhotoSku(name: '3寸', price: 3.50),
       ],
+      operatorName: '嬴政',
     );
   }
 
@@ -40,6 +43,7 @@ class AppConfig {
       photoSkus: (json['photoSkus'] as List)
           .map((e) => PhotoSku.fromJson(e))
           .toList(),
+      operatorName: json['operatorName'] ?? '嬴政',
     );
   }
 
@@ -49,6 +53,23 @@ class AppConfig {
       'documentTiers': documentTiers.map((e) => e.toJson()).toList(),
       'photoModeName': photoModeName,
       'photoSkus': photoSkus.map((e) => e.toJson()).toList(),
+      'operatorName': operatorName,
     };
+  }
+
+  AppConfig copyWith({
+    String? documentModeName,
+    List<TierConfig>? documentTiers,
+    String? photoModeName,
+    List<PhotoSku>? photoSkus,
+    String? operatorName,
+  }) {
+    return AppConfig(
+      documentModeName: documentModeName ?? this.documentModeName,
+      documentTiers: documentTiers ?? this.documentTiers,
+      photoModeName: photoModeName ?? this.photoModeName,
+      photoSkus: photoSkus ?? this.photoSkus,
+      operatorName: operatorName ?? this.operatorName,
+    );
   }
 }

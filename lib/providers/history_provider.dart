@@ -4,19 +4,19 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/history_record.dart';
 
-class HistoryProvider with ChangeNotifier {
+class HistoryProvider extends ChangeNotifier {
+  final SharedPreferences _prefs;
   List<HistoryRecord> _records = [];
   static const String _historyKey = 'print_history';
 
   List<HistoryRecord> get records => List.unmodifiable(_records);
 
-  HistoryProvider() {
+  HistoryProvider(this._prefs) {
     _loadHistory();
   }
 
   Future<void> _loadHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final historyString = prefs.getString(_historyKey);
+    final historyString = _prefs.getString(_historyKey);
     if (historyString != null) {
       try {
         final List<dynamic> jsonList = json.decode(historyString);
@@ -49,8 +49,7 @@ class HistoryProvider with ChangeNotifier {
   }
 
   Future<void> _saveHistory() async {
-    final prefs = await SharedPreferences.getInstance();
     final historyString = json.encode(_records.map((e) => e.toJson()).toList());
-    await prefs.setString(_historyKey, historyString);
+    await _prefs.setString(_historyKey, historyString);
   }
 }

@@ -5,13 +5,17 @@ enum ThemeOption { system, light, dark }
 
 class ThemeProvider extends ChangeNotifier {
   static const _key = 'app_theme_option';
+  final SharedPreferences _prefs;
   ThemeOption _option = ThemeOption.system;
+
+  ThemeProvider(this._prefs) {
+    _load();
+  }
 
   ThemeOption get option => _option;
 
-  Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final v = prefs.getString(_key);
+  void _load() {
+    final v = _prefs.getString(_key);
     if (v == 'light') _option = ThemeOption.light;
     if (v == 'dark') _option = ThemeOption.dark;
     if (v == 'system') _option = ThemeOption.system;
@@ -20,14 +24,11 @@ class ThemeProvider extends ChangeNotifier {
 
   Future<void> setOption(ThemeOption option) async {
     _option = option;
-    final prefs = await SharedPreferences.getInstance();
-    final str = switch (option) { 
-      ThemeOption.light => 'light',
-      ThemeOption.dark => 'dark',
-      ThemeOption.system => 'system',
-    };
-    await prefs.setString(_key, str);
     notifyListeners();
+    String val = 'system';
+    if (option == ThemeOption.light) val = 'light';
+    if (option == ThemeOption.dark) val = 'dark';
+    await _prefs.setString(_key, val);
   }
 
   Brightness resolveBrightness(BuildContext context) => switch (_option) {

@@ -13,6 +13,8 @@ import 'history_screen.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/glass_background.dart';
 import '../providers/theme_provider.dart';
+import '../services/feishu_sync_service.dart';
+import '../widgets/glass_nav_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,17 +27,16 @@ class HomeScreen extends StatelessWidget {
     final isDark = CupertinoTheme.of(context).brightness == Brightness.dark;
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: const Text('打印费用计算器'),
+      navigationBar: GlassNavBar(
+        middle: const Text('费用计算器'),
+        middleOffsetX: 16,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Icon(
             isDark ? CupertinoIcons.moon_fill : CupertinoIcons.sun_max_fill,
             color: CupertinoTheme.of(context).primaryColor,
           ),
-          onPressed: () {
-            _showThemeSheet(context);
-          },
+          onPressed: () => _showThemeSheet(context),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -360,6 +361,13 @@ class HomeScreen extends StatelessWidget {
                         totalCost: totalCost,
                       );
                       history.addRecord(record);
+                      // 无感同步到飞书（异步、静默失败）
+                      FeishuSyncService.sendRecord(
+                        type: record.type,
+                        amount: record.totalCost,
+                        timestampMs: record.timestamp.millisecondsSinceEpoch,
+                        operatorName: config.config.operatorName,
+                      );
                       // Cupertino 风格通常没有 SnackBar，可以用 Dialog 或其他提示
                       // 这里简单用 Dialog
                       showCupertinoDialog(

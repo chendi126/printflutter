@@ -1,6 +1,6 @@
 {
-    "name": "print_flutter",
-    "short_name": "print_flutter",
+    "name": "哒哒哒计算器",
+    "short_name": "哒哒哒计算器",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
